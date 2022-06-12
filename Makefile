@@ -1,11 +1,15 @@
 CC=gcc
-CFLAGS=-Wall -g 
+CFLAGS=-Wall -g -Isrc
 
 BUILD_DIR=build
 SRC_DIR=src
 OBJ_DIR=obj
 
-SOURCES = main.c
+SOURCES = main.c GL.c
+LIBS = glfw3
+
+LDFLAGS = `pkg-config --libs $(LIBS)`
+CFLAGS += `pkg-config --cflags $(LIBS)`
 
 all: build
 
