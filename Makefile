@@ -1,14 +1,14 @@
 SOURCES = main.c GL.c
 RESOURCES = frag.glsl vert.glsl
-LIBS = glfw3
+LIBS = glfw3 cglm
 
 BUILD_DIR=build
 SRC_DIR=src
 OBJ_DIR=obj
 RSC_DIR=resources
 
-LDFLAGS = `pkg-config --libs   $(LIBS)`
-CFLAGS  = `pkg-config --cflags $(LIBS)` -Wall -g -Isrc  
+LDFLAGS := `pkg-config --libs   $(LIBS)`
+CFLAGS  := `pkg-config --cflags $(LIBS)` -Wall -g -Isrc -O0 
 
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES))
 OBJS += $(patsubst %, $(OBJ_DIR)/$(RSC_DIR)/%.o, $(RESOURCES))
