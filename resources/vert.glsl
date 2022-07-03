@@ -5,8 +5,9 @@ layout(location = 0) in vec3 aPos;
 out vec3 color;
 
 //uniform mat4 model;
-//uniform mat4 viewProj;
+uniform mat4 viewProj;
 
 void main(){
-	gl_Position = vec4(aPos, 1.0);
+	gl_Position = viewProj * vec4(aPos, 1.0);
+	color = aPos;
 }

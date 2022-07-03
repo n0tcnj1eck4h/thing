@@ -4,6 +4,7 @@
 #include "GL.h"
 #include "GLFW/glfw3.h"
 #include "cglm/vec3.h"
+#include "camera.h"
 
 extern GLchar resources_vert_glsl[];
 extern unsigned int resources_vert_glsl_len;
@@ -97,9 +98,11 @@ GLuint make_program(const GLchar* vert_source, unsigned int vert_source_len, con
 }
 
 int main() {
+	Camera camera;
 	GLuint program;
 	GLFWwindow* window;
 	GLuint VBO, EBO, VAO;
+	GLuint viewproj_uniform;
 
 	glfwInit();
 
@@ -107,14 +110,14 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
-	window = glfwCreateWindow(500, 500, "Window", NULL, NULL);
+	window = glfwCreateWindow(1080, 720, "Window", NULL, NULL);
 	assert(window);
 
 	glfwMakeContextCurrent(window);
 
 	loadGL();
 
-	glViewport(0, 0, 500, 500);
+	glViewport(0, 0, 1080, 720);
 
 	program = make_program(resources_vert_glsl, resources_vert_glsl_len, resources_frag_glsl, resources_frag_glsl_len);
 	glUseProgram(program);
@@ -134,10 +137,20 @@ int main() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0);
 	glEnableVertexAttribArray(0);
 
+	camera_init(&camera);
+	glm_vec3_copy((vec3){0.f, 0.f, 5.f}, camera.pos);
+	glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
+	camera_update_proj(&camera);
+	camera_update_viewproj(&camera);
+
+	viewproj_uniform = glGetUniformLocation(program, "viewProj");
+	glUniformMatrix4fv(viewproj_uniform, 1, GL_FALSE, GLM_MAT4_IDENTITY);
+	//glUniformMatrix4fv(viewproj_uniform, 1, GL_FALSE, camera.viewproj);
+
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 	while(!glfwWindowShouldClose(window)){
 		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(*indices), GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
 	}

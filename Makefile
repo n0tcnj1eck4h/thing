@@ -1,4 +1,4 @@
-SOURCES = main.c GL.c
+SOURCES = main.c GL.c camera.c
 RESOURCES = frag.glsl vert.glsl
 LIBS = glfw3 cglm
 
