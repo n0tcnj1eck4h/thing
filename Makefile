@@ -8,7 +8,7 @@ OBJ_DIR=obj
 RSC_DIR=resources
 
 LDFLAGS := `pkg-config --libs   $(LIBS)`
-CFLAGS  := `pkg-config --cflags $(LIBS)` -Wall -g -Isrc -O0 
+CFLAGS  := `pkg-config --cflags $(LIBS)` -Wall -g -Isrc -O0 -DDEBUG
 
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES))
 OBJS += $(patsubst %, $(OBJ_DIR)/$(RSC_DIR)/%.o, $(RESOURCES))

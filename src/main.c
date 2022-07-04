@@ -97,12 +97,25 @@ GLuint make_program(const GLchar* vert_source, unsigned int vert_source_len, con
 	return program;
 }
 
+void GLAPIENTRY
+MessageCallback( GLenum source,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei length,
+                 const GLchar* message,
+                 const void* userParam )
+{
+  fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+         (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),    
+		  type, severity, message);
+}
+    
+
 int main() {
-	Camera camera;
 	GLuint program;
 	GLFWwindow* window;
-	GLuint VBO, EBO, VAO;
-	GLuint viewproj_uniform;
+	GLuint VBO, IBO, VAO;
 
 	glfwInit();
 
@@ -117,36 +130,34 @@ int main() {
 
 	loadGL();
 
-	glViewport(0, 0, 1080, 720);
+	#if defined(DEBUG)
+		printf("Debug enabled!\n");
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback( MessageCallback, 0 );
+	#endif // DEBUG
 
 	program = make_program(resources_vert_glsl, resources_vert_glsl_len, resources_frag_glsl, resources_frag_glsl_len);
 	glUseProgram(program);
 
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glCreateVertexArrays(1, &VAO);
+	glCreateBuffers(1, &VBO);
+	glCreateBuffers(1, &IBO);
 
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glNamedBufferData(IBO, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glGenVertexArrays(1, &VAO);
+	glEnableVertexArrayAttrib(VAO, 0);
+	glVertexArrayAttribBinding(VAO, 0, 0);
+	glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+	
+	glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(vec3));
+	glVertexArrayElementBuffer(VAO, IBO);
+
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0);
-	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-	camera_init(&camera);
-	glm_vec3_copy((vec3){0.f, 0.f, 5.f}, camera.pos);
-	glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
-	camera_update_proj(&camera);
-	camera_update_viewproj(&camera);
-
-	viewproj_uniform = glGetUniformLocation(program, "viewProj");
-	glUniformMatrix4fv(viewproj_uniform, 1, GL_FALSE, GLM_MAT4_IDENTITY);
-	//glUniformMatrix4fv(viewproj_uniform, 1, GL_FALSE, camera.viewproj);
-
+	glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 	while(!glfwWindowShouldClose(window)){
 		glfwPollEvents();
@@ -157,7 +168,7 @@ int main() {
 
 	glfwDestroyWindow(window);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &IBO);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteProgram(program);
 	return 0;
