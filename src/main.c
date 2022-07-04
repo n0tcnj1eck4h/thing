@@ -4,6 +4,7 @@
 #include "GL.h"
 #include "GLFW/glfw3.h"
 #include "cglm/vec3.h"
+#include "cglm/cam.h"
 #include "camera.h"
 
 extern GLchar resources_vert_glsl[];
@@ -113,9 +114,11 @@ MessageCallback( GLenum source,
     
 
 int main() {
+	Camera camera;
 	GLuint program;
 	GLFWwindow* window;
 	GLuint VBO, IBO, VAO;
+	GLuint viewproj_uniform;
 
 	glfwInit();
 
@@ -129,6 +132,8 @@ int main() {
 	glfwMakeContextCurrent(window);
 
 	loadGL();
+
+	glEnable(GL_DEPTH_TEST);
 
 	#if defined(DEBUG)
 		printf("Debug enabled!\n");
@@ -156,6 +161,16 @@ int main() {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+	viewproj_uniform = glGetUniformLocation(program, "viewProj");
+
+	camera_init(&camera);
+	glm_vec3_copy((vec3){6.f, 2.f, 2.f}, camera.pos);
+	glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
+	camera_update_proj(&camera);
+	camera_update_viewproj(&camera);
+
+	glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float *)camera.viewproj);
 
 	glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);

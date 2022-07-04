@@ -15,9 +15,9 @@ void camera_init(Camera* camera) {
 
 void camera_update_viewproj(Camera* camera) {
     glm_quat_look(camera -> pos, camera -> dir, camera -> view);
-    glm_mat4_mul(camera -> view, camera -> proj, camera -> viewproj);
+    glm_mat4_mul(camera -> proj, camera -> view, camera -> viewproj);
 }
 
 void camera_update_proj(Camera* camera) {
-    glm_perspective(camera -> fov, camera -> aspect, camera -> nearZ, camera -> farZ, camera -> view);
+    glm_perspective(camera -> fov, camera -> aspect, camera -> nearZ, camera -> farZ, camera -> proj);
 }
