@@ -1,4 +1,4 @@
-SOURCES = main.c GL.c camera.c
+SOURCES = $(patsubst src/%, %, $(wildcard src/*.c))
 RESOURCES = frag.glsl vert.glsl
 LIBS = glfw3 cglm
 

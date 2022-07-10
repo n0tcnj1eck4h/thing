@@ -6,6 +6,8 @@
 #include "cglm/vec3.h"
 #include "cglm/cam.h"
 #include "camera.h"
+#include "fps_cam_ctl.h"
+#include "global.h"
 
 extern GLchar resources_vert_glsl[];
 extern unsigned int resources_vert_glsl_len;
@@ -112,13 +114,23 @@ MessageCallback( GLenum source,
 		  type, severity, message);
 }
     
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    global.keystate[key] = action;
+}
+
+u8 key_pressed(u8 key) {
+	return global.keystate[key] != GLFW_RELEASE; // crazy bit hack?
+} 
 
 int main() {
 	Camera camera;
+	FPSCameraController camera_controller;
 	GLuint program;
 	GLFWwindow* window;
 	GLuint VBO, IBO, VAO;
 	GLuint viewproj_uniform;
+	double delta;
 
 	glfwInit();
 
@@ -130,6 +142,7 @@ int main() {
 	assert(window);
 
 	glfwMakeContextCurrent(window);
+	glfwSetKeyCallback(window, key_callback);
 
 	loadGL();
 
@@ -169,13 +182,36 @@ int main() {
 	glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
 	camera_update_proj(&camera);
 	camera_update_viewproj(&camera);
-
-	glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float *)camera.viewproj);
-
+	
 	glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 	while(!glfwWindowShouldClose(window)){
+		delta = glfwGetTime();
+		glfwSetTime(0.0);
+
 		glfwPollEvents();
+		//fps_camera_controller_update(&camera_controller, delta);
+
+		if(key_pressed(GLFW_KEY_A)) {
+			glm_vec3_rotate(camera.pos, delta * GLM_PI, GLM_YUP);
+		}
+
+		if(key_pressed(GLFW_KEY_D)) {
+			glm_vec3_rotate(camera.pos, -delta * GLM_PI, GLM_YUP);
+		}
+
+		if(key_pressed(GLFW_KEY_W)) {
+			glm_vec3_scale(camera.pos, 1.0 - delta, camera.pos);
+		}
+
+		if(key_pressed(GLFW_KEY_S)) {
+			glm_vec3_scale(camera.pos, 1.0 + delta, camera.pos);
+		}
+
+		glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
+		camera_update_viewproj(&camera);
+		glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float *)camera.viewproj);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(*indices), GL_UNSIGNED_INT, 0);
 		glfwSwapBuffers(window);
