@@ -5,8 +5,7 @@
 #include "cglm/quat.h"
 
 typedef struct Camera {
-    vec3 pos;
-    versor dir;
+    vec3 pos, dir;
     float nearZ, farZ, aspect, fov;
     mat4 view, proj, viewproj;
 } Camera;

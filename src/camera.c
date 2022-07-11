@@ -3,7 +3,7 @@
 
 void camera_init(Camera* camera) {
     glm_vec3_zero(camera -> pos);
-    glm_quat_identity(camera -> dir);
+    glm_vec3_copy((vec3){0.0, 0.0, 1.0}, camera -> dir);
     camera -> nearZ = .1f;
     camera -> farZ = 50.f;
     camera -> fov = 80.f;
@@ -14,7 +14,7 @@ void camera_init(Camera* camera) {
 }
 
 void camera_update_viewproj(Camera* camera) {
-    glm_quat_look(camera -> pos, camera -> dir, camera -> view);
+    glm_look(camera -> pos, camera -> dir, GLM_YUP, camera -> view);
     glm_mat4_mul(camera -> proj, camera -> view, camera -> viewproj);
 }
 

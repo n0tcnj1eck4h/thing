@@ -4,7 +4,7 @@
 #include "types.h"
 #include "GLFW/glfw3.h"
 
-struct {
+typedef struct Global {
     struct {
         f32 delta;
         f32 time;
@@ -12,7 +12,8 @@ struct {
         f32 time_last;
     } frametime_info;
     u8 keystate[GLFW_KEY_LAST];
-} global = {0};
+} Global;
 
+extern Global global;
 
 #endif // GLOBAL_H

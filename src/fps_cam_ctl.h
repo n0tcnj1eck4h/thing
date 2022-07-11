@@ -9,7 +9,7 @@ typedef struct FPSCameraController {
     float sens;
 } FPSCameraController;
 
-void fps_camera_controller_update(FPSCameraController* controller, double delta);
+void fps_camera_controller_update(FPSCameraController* controller);
 
 
 #endif // FPS_CAM_CTL_H

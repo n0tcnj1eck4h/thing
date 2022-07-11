@@ -119,9 +119,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     global.keystate[key] = action;
 }
 
-u8 key_pressed(u8 key) {
-	return global.keystate[key] != GLFW_RELEASE; // crazy bit hack?
-} 
 
 int main() {
 	Camera camera;
@@ -130,7 +127,6 @@ int main() {
 	GLFWwindow* window;
 	GLuint VBO, IBO, VAO;
 	GLuint viewproj_uniform;
-	double delta;
 
 	glfwInit();
 
@@ -179,36 +175,25 @@ int main() {
 
 	camera_init(&camera);
 	glm_vec3_copy((vec3){6.f, 2.f, 2.f}, camera.pos);
-	glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
+	glm_vec3_copy((vec3){-6.f, -2.f, -2.f}, camera.dir);
+	glm_vec3_normalize(camera.dir);
+	
 	camera_update_proj(&camera);
 	camera_update_viewproj(&camera);
+
+	camera_controller.camera = &camera;
+	camera_controller.speed = 1.0;
+	camera_controller.sens = 1.0;
 	
 	glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 	while(!glfwWindowShouldClose(window)){
-		delta = glfwGetTime();
+		global.frametime_info.delta = glfwGetTime();
 		glfwSetTime(0.0);
 
 		glfwPollEvents();
-		//fps_camera_controller_update(&camera_controller, delta);
+		fps_camera_controller_update(&camera_controller);
 
-		if(key_pressed(GLFW_KEY_A)) {
-			glm_vec3_rotate(camera.pos, delta * GLM_PI, GLM_YUP);
-		}
-
-		if(key_pressed(GLFW_KEY_D)) {
-			glm_vec3_rotate(camera.pos, -delta * GLM_PI, GLM_YUP);
-		}
-
-		if(key_pressed(GLFW_KEY_W)) {
-			glm_vec3_scale(camera.pos, 1.0 - delta, camera.pos);
-		}
-
-		if(key_pressed(GLFW_KEY_S)) {
-			glm_vec3_scale(camera.pos, 1.0 + delta, camera.pos);
-		}
-
-		glm_quat_forp(camera.pos, GLM_VEC3_ZERO, GLM_YUP, camera.dir);
 		camera_update_viewproj(&camera);
 		glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float *)camera.viewproj);
 
