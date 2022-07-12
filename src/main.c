@@ -10,12 +10,53 @@
 #include "global.h"
 #include "fixed_size_mem_pool.h"
 #include "renderer.h"
+#include "string.h"
 
     
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     global.keystate[key] = action;
 }
+
+
+void allocator_test() {
+	Index data[3];
+
+	printf("===ALLOCATOR TEST===\n");
+
+	printf("Initial state:\n");
+	print_memory_cells(0, 5);
+
+	data[0] = mem_pool_alloc();
+	mem[data[0]].data = 69696;
+	printf("Alloc:\n");
+	print_memory_cells(0, 5);
+
+	data[1] = mem_pool_alloc();
+	mem[data[1]].data = 727;
+	printf("Alloc:\n");
+	print_memory_cells(0, 5);
+
+	data[2] = mem_pool_alloc();
+	mem[data[2]].data = 1337;
+	printf("Alloc:\n");
+	print_memory_cells(0, 5);
+
+	mem_pool_free(data[0]);
+	printf("Free:\n");
+	print_memory_cells(0, 5);
+
+	mem_pool_free(data[2]);
+	printf("Free:\n");
+	print_memory_cells(0, 5);
+
+	data[2] = mem_pool_alloc();
+	mem[data[2]].data = 0xFF;
+	printf("Alloc:\n");
+	print_memory_cells(0, 5);
+}
+
+
 
 int main() {
 	Camera camera;
@@ -36,6 +77,10 @@ int main() {
 	loadGL();
 	renderer_init();
 	mem_pool_init();
+	
+	#if defined(DEBUG)
+		allocator_test();
+	#endif
 
 	camera_init(&camera);
 	glm_vec3_copy((vec3){6.f, 2.f, 2.f}, camera.pos);
