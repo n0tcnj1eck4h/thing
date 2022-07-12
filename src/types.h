@@ -16,5 +16,20 @@ typedef int64_t i64;
 typedef float  f32;
 typedef double f64;
 
+typedef u16 Index;
+
+typedef struct Node {
+    Index children[8];
+} Node;
+
+typedef struct Leaf {
+    u64 data[2];
+} Leaf;
+
+typedef union Block {
+    Node node;
+    Leaf leaf;
+    Index index;
+} Block;
 
 #endif // TYPES_H

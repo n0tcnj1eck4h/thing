@@ -7,7 +7,9 @@
 #include "camera.h"
 
 void renderer_init();
-void renderer_render();
+void renderer_clear();
+void renderer_update_camera();
+void rederer_draw_cube(mat4 transform);
 void renderer_set_camera(Camera* camera);
 void renderer_destroy();
 

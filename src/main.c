@@ -18,7 +18,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     global.keystate[key] = action;
 }
 
-
 void allocator_test() {
 	Index data[3];
 
@@ -28,17 +27,17 @@ void allocator_test() {
 	print_memory_cells(0, 5);
 
 	data[0] = mem_pool_alloc();
-	mem[data[0]].data = 69696;
+	mem[data[0]].leaf.data[0] = 123;
 	printf("Alloc:\n");
 	print_memory_cells(0, 5);
 
 	data[1] = mem_pool_alloc();
-	mem[data[1]].data = 727;
+	mem[data[1]].leaf.data[0] = 727;
 	printf("Alloc:\n");
 	print_memory_cells(0, 5);
 
 	data[2] = mem_pool_alloc();
-	mem[data[2]].data = 1337;
+	mem[data[2]].leaf.data[0] = 1337;
 	printf("Alloc:\n");
 	print_memory_cells(0, 5);
 
@@ -51,12 +50,10 @@ void allocator_test() {
 	print_memory_cells(0, 5);
 
 	data[2] = mem_pool_alloc();
-	mem[data[2]].data = 0xFF;
+	mem[data[2]].leaf.data[0] = 0xFF;
 	printf("Alloc:\n");
 	print_memory_cells(0, 5);
 }
-
-
 
 int main() {
 	Camera camera;
@@ -95,16 +92,29 @@ int main() {
 	camera_controller.speed = 1.0;
 	camera_controller.sens = 1.0;
 	
-
 	while(!glfwWindowShouldClose(window)){
-		global.frametime_info.delta = glfwGetTime();
-		glfwSetTime(0.0);
+		global.frametime_info.time_last = global.frametime_info.time;
+		global.frametime_info.time = glfwGetTime();
+		global.frametime_info.delta_last = global.frametime_info.delta;
+		global.frametime_info.delta = global.frametime_info.time - global.frametime_info.time_last;
 
 		glfwPollEvents();
 		fps_camera_controller_update(&camera_controller);
 		camera_update_viewproj(&camera);
+		renderer_update_camera();
 
-		renderer_render();
+		renderer_clear();
+		for (i32 x = -15; x < 16; x++)
+		for (i32 y = -15; y < 16; y++)
+		for (i32 z = -15; z < 16; z++)
+		if(x*x + y*y + z*z > 16*16) {
+			mat4 transform = GLM_MAT4_IDENTITY_INIT;
+			glm_translate(transform, (vec3){(f32)x, (f32)y, (f32)z});
+			rederer_draw_cube(transform);
+		}
+
+		rederer_draw_cube(GLM_MAT4_IDENTITY);
+
 		glfwSwapBuffers(window);
 	}
 

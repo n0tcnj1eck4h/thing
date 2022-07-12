@@ -3,14 +3,14 @@
 
 #include "types.h"
 
-typedef u16 Index;
+union BlockPublic
+{
+    Node node;
+    Leaf leaf;
+};
 
-typedef struct Node {
-    u32 data;
-    Index children[8];
-} Node;
+extern union BlockPublic* mem;
 
-extern Node* mem;
 void mem_pool_init();
 Index mem_pool_alloc();
 void mem_pool_free(Index);

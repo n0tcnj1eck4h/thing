@@ -8,12 +8,7 @@
 #define CAPACITY (1 << 16)
 #define DATA_SIZE sizeof(Node)
 
-Node* mem;
-
-typedef union Block {
-    Node node;
-    Index index;
-} Block;
+union BlockPublic* mem;
 
 static struct {
     u64 free_blocks;
@@ -24,7 +19,7 @@ static struct {
 
 
 void mem_pool_init(){
-    mem = (Node*)mem_pool.data;
+    mem = (union BlockPublic*)mem_pool.data;
     mem_pool.head = 0;
     mem_pool.free_blocks = CAPACITY;
     mem_pool.initilized_blocks = 0;
@@ -52,23 +47,6 @@ Index mem_pool_alloc() {
 
     return ret;
 }
-
-/*void* Allocate()
-{
-    Index ret;
-
-    if (mem_pool.initilized_blocks < CAPACITY ) {
-        Index i = mem_pool.data[mem_pool.initilized_blocks].index;
-        mem_pool.data[i].index = mem_pool.initilized_blocks + 1;
-        mem_pool.initilized_blocks++;
-    }
-
-    ret = mem_pool.head;
-    mem_pool.free_blocks--;
-    mem_pool.head = mem_pool.data[mem_pool.head].index;
-    
-    return ret;
-}*/
 
 void mem_pool_free(Index idx) {
     mem_pool.data[idx].index = mem_pool.head;
@@ -104,7 +82,7 @@ void print_memory_cell(Index i) {
     }
 
 
-    printf("%sNode[%d]: {%d, %d, %d, %d, %d, %d, %d, %d} Data: %d \t Index[%d]: %d %s\n" reset,
+    printf("%sNode[%d]: {%d, %d, %d, %d, %d, %d, %d, %d} \t Index[%d]: %d %s\n" reset,
         color,
         i,
         mem_pool.data[i].node.children[0],
@@ -115,7 +93,6 @@ void print_memory_cell(Index i) {
         mem_pool.data[i].node.children[5],
         mem_pool.data[i].node.children[6],
         mem_pool.data[i].node.children[7],
-        mem_pool.data[i].node.data,
         i, 
         mem_pool.data[i].index,
         purpose

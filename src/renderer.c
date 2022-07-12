@@ -8,7 +8,7 @@ extern GLchar resources_frag_glsl[];
 extern unsigned int resources_frag_glsl_len;
 
 GLuint VBO, IBO, VAO;
-GLuint viewproj_uniform;
+GLuint viewproj_uniform, model_uniform;
 GLuint program;
 
 Camera* active_camera = NULL;
@@ -123,6 +123,11 @@ void renderer_init() {
 	#endif // DEBUG
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW); 
+
+	glLineWidth(2.0f);
 
     program = make_program(resources_vert_glsl, resources_vert_glsl_len, resources_frag_glsl, resources_frag_glsl_len);
 	glUseProgram(program);
@@ -146,19 +151,22 @@ void renderer_init() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	viewproj_uniform = glGetUniformLocation(program, "viewProj");
+	model_uniform = glGetUniformLocation(program, "model");
+
+	glUniform4fv(viewproj_uniform, 1, (float*)GLM_MAT4_IDENTITY);
+	glUniform4fv(model_uniform, 1, (float*)GLM_MAT4_IDENTITY);
 
     glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 }
 
-
-void renderer_render() {
+void renderer_clear() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void renderer_update_camera() {
     if(active_camera)
 		glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float *)active_camera -> viewproj);
-
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(*indices), GL_UNSIGNED_INT, 0);
 }
 
 void renderer_set_camera(Camera* camera) {
@@ -170,4 +178,9 @@ void renderer_destroy() {
 	glDeleteBuffers(1, &IBO);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteProgram(program);
+}
+
+void rederer_draw_cube(mat4 transform) {
+	glProgramUniformMatrix4fv(program, model_uniform, 1, GL_FALSE, (float *)transform);
+    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(*indices), GL_UNSIGNED_INT, 0);
 }
