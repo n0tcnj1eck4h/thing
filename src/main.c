@@ -115,7 +115,7 @@ int main() {
 			rederer_draw_cube(transform);
 		}
 
-		rederer_draw_cube(GLM_MAT4_IDENTITY);
+		rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
 
 		glfwSwapBuffers(window);
 	}

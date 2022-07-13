@@ -7,14 +7,14 @@ extern unsigned int resources_vert_glsl_len;
 extern GLchar resources_frag_glsl[];
 extern unsigned int resources_frag_glsl_len;
 
-GLuint VBO, IBO, VAO;
+GLuint VBO, IBO, IBO2, VAO, VAO2;
 GLuint viewproj_uniform, model_uniform;
 GLuint program;
 
 Camera* active_camera = NULL;
 
 
-const vec3 vertices[] = {
+const vec3 box_vertices[] = {
 	{0.0f, 0.0f, 0.0f},
 	{0.0f, 0.0f, 1.0f},
 	{0.0f, 1.0f, 0.0f},
@@ -25,7 +25,7 @@ const vec3 vertices[] = {
 	{1.0f, 1.0f, 1.0f},
 };
 
-const GLuint indices[] = {
+const GLuint box_indices[] = {
 	0, 2, 1,
 	2, 3, 1,
 
@@ -43,6 +43,21 @@ const GLuint indices[] = {
 
 	5, 7, 6,
 	6, 4, 5
+};
+
+const GLuint line_indices[] = {
+	0, 1,
+	0, 2,
+	3, 1,
+	3, 2,
+	0, 4,
+	1, 5,
+	2, 6,
+	3, 7,
+	4, 5,
+	4, 6,
+	7, 5,
+	7, 6
 };
 
 
@@ -133,22 +148,30 @@ void renderer_init() {
 	glUseProgram(program);
 
 	glCreateVertexArrays(1, &VAO);
+	glCreateVertexArrays(1, &VAO2);
 	glCreateBuffers(1, &VBO);
 	glCreateBuffers(1, &IBO);
+	glCreateBuffers(1, &IBO2);
 
-	glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glNamedBufferData(IBO, sizeof(indices), indices, GL_STATIC_DRAW);
+	glNamedBufferStorage(VBO, sizeof(box_vertices), box_vertices, GL_MAP_WRITE_BIT);
+	glNamedBufferStorage(IBO, sizeof(box_indices), box_indices, GL_MAP_WRITE_BIT);
+	glNamedBufferStorage(IBO2, sizeof(line_indices), line_indices, GL_MAP_WRITE_BIT);
 
 	glEnableVertexArrayAttrib(VAO, 0);
 	glVertexArrayAttribBinding(VAO, 0, 0);
 	glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+
+	glEnableVertexArrayAttrib(VAO2, 0);
+	glVertexArrayAttribBinding(VAO2, 0, 0);
+	glVertexArrayAttribFormat(VAO2, 0, 3, GL_FLOAT, GL_FALSE, 0);
 	
 	glVertexArrayVertexBuffer(VAO, 0, VBO, 0, sizeof(vec3));
+	glVertexArrayVertexBuffer(VAO2, 0, VBO, 0, sizeof(vec3));
+
 	glVertexArrayElementBuffer(VAO, IBO);
+	glVertexArrayElementBuffer(VAO2, IBO2);
 
 	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	viewproj_uniform = glGetUniformLocation(program, "viewProj");
 	model_uniform = glGetUniformLocation(program, "model");
@@ -181,6 +204,13 @@ void renderer_destroy() {
 }
 
 void rederer_draw_cube(mat4 transform) {
+	glBindVertexArray(VAO);
 	glProgramUniformMatrix4fv(program, model_uniform, 1, GL_FALSE, (float *)transform);
-    glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(*indices), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, sizeof(box_indices) / sizeof(*box_indices), GL_UNSIGNED_INT, 0);
+}
+
+void rederer_draw_cube_lines(mat4 transform) {
+	glBindVertexArray(VAO2);
+	glProgramUniformMatrix4fv(program, model_uniform, 1, GL_FALSE, (float *)transform);
+    glDrawElements(GL_LINES, sizeof(line_indices) / sizeof(*line_indices), GL_UNSIGNED_INT, 0);
 }

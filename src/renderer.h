@@ -12,5 +12,6 @@ void renderer_update_camera();
 void rederer_draw_cube(mat4 transform);
 void renderer_set_camera(Camera* camera);
 void renderer_destroy();
+void rederer_draw_cube_lines(mat4 transform);
 
 #endif // RENDERER_H
