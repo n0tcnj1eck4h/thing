@@ -7,7 +7,7 @@ SRC_DIR=src
 OBJ_DIR=obj
 RSC_DIR=resources
 
-LDFLAGS := `pkg-config --libs   $(LIBS)`
+LDFLAGS := `pkg-config --libs   $(LIBS)` -lm
 CFLAGS  := `pkg-config --cflags $(LIBS)` -Wall -g -Isrc -O0 -DDEBUG
 
 OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES))
@@ -32,7 +32,7 @@ run: build
 	$(BUILD_DIR)/out
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< $(LDFLAGS)-o $@
+	$(CC) $(CFLAGS) -c $< $(LDFLAGS) -o $@
 
 $(OBJ_DIR)/$(RSC_DIR)/%.o: $(OBJ_DIR)/$(RSC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< $(LDFLAGS) -o $@

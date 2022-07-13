@@ -11,8 +11,13 @@
 #include "fixed_size_mem_pool.h"
 #include "renderer.h"
 #include "string.h"
+#include "math.h"
 
-    
+float clamp(float x, float upper, float lower)
+{
+    return fmin(upper, fmax(x, lower));
+}
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     global.keystate[key] = action;
@@ -106,16 +111,32 @@ int main() {
 		renderer_update_camera();
 
 		renderer_clear();
-		for (i32 x = -15; x < 16; x++)
+		/*for (i32 x = -15; x < 16; x++)
 		for (i32 y = -15; y < 16; y++)
 		for (i32 z = -15; z < 16; z++)
 		if(x*x + y*y + z*z > 16*16) {
 			mat4 transform = GLM_MAT4_IDENTITY_INIT;
 			glm_translate(transform, (vec3){(f32)x, (f32)y, (f32)z});
 			rederer_draw_cube(transform);
-		}
+		}*/
 
-		rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
+		for (int i = 0; i < 64; i++) {
+			mat4 transform = GLM_MAT4_IDENTITY_INIT;
+			float rot = fmod(global.frametime_info.time - (i / 64.0), GLM_PI_2 * 2.0 * 3.0);
+			float rotx = clamp(rot, GLM_PI_2 * 1.0, GLM_PI_2 * 0.0) + clamp(rot, GLM_PI_2 * 4.0, GLM_PI_2 * 3.0);
+			float roty = clamp(rot, GLM_PI_2 * 2.0, GLM_PI_2 * 1.0) + clamp(rot, GLM_PI_2 * 5.0, GLM_PI_2 * 4.0);
+			float rotz = clamp(rot, GLM_PI_2 * 3.0, GLM_PI_2 * 2.0) + clamp(rot, GLM_PI_2 * 6.0, GLM_PI_2 * 5.0);
+
+			glm_rotate(transform, rotx, GLM_XUP);
+			glm_rotate(transform, roty, GLM_YUP);
+			glm_rotate(transform, rotz, GLM_ZUP);
+
+			glm_scale_uni(transform, 1.0 - i / 64.0);
+			glm_translate(transform, (vec3){-0.5f, -0.5f, -0.5f});
+			rederer_draw_cube_lines(transform);
+		}
+		
+		//rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
 
 		glfwSwapBuffers(window);
 	}

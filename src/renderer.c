@@ -142,7 +142,7 @@ void renderer_init() {
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW); 
 
-	glLineWidth(2.0f);
+	glLineWidth(3.0f);
 
     program = make_program(resources_vert_glsl, resources_vert_glsl_len, resources_frag_glsl, resources_frag_glsl_len);
 	glUseProgram(program);
