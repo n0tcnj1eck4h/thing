@@ -1,5 +1,5 @@
-#if !defined(FIXED_SIZE_fsa_H)
-#define FIXED_SIZE_fsa_H
+#if !defined(FSA_H)
+#define FSA_H
 
 #include "types.h"
 
@@ -26,4 +26,4 @@ void fsa_print_state(FixedSizeAllocator* allocator);
 void fsa_print_cells(FixedSizeAllocator* allocator, Index start, Index count);
 void fsa_test(FixedSizeAllocator* allocator);
 
-#endif // FIXED_SIZE_fsa_H
+#endif // FSA_H
