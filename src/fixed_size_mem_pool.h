@@ -1,5 +1,5 @@
-#if !defined(FIXED_SIZE_MEM_POOL_H)
-#define FIXED_SIZE_MEM_POOL_H
+#if !defined(FIXED_SIZE_fsa_H)
+#define FIXED_SIZE_fsa_H
 
 #include "types.h"
 
@@ -9,13 +9,21 @@ union BlockPublic
     Leaf leaf;
 };
 
-extern union BlockPublic* mem;
+typedef struct FixedSizeAllocator {
+    u64 allocated_memory_exp;
+    u64 free_blocks;
+    u64 initilized_blocks;
+    Index head;
+    Block* data;
+} FixedSizeAllocator;
 
-void mem_pool_init();
-Index mem_pool_alloc();
-void mem_pool_free(Index);
-void print_memory_cell(Index i);
-void print_memory_state();
-void print_memory_cells(Index start, Index count);
+void fsa_init(FixedSizeAllocator* allocator);
+Index fsa_alloc(FixedSizeAllocator* allocator);
+void fsa_free(FixedSizeAllocator* allocator, Index index);
+void fsa_destroy(FixedSizeAllocator* allocator);
+void fsa_print_cell(FixedSizeAllocator* allocator, Index i);
+void fsa_print_state(FixedSizeAllocator* allocator);
+void fsa_print_cells(FixedSizeAllocator* allocator, Index start, Index count);
+void fsa_test(FixedSizeAllocator* allocator);
 
-#endif // FIXED_SIZE_MEM_POOL_H
+#endif // FIXED_SIZE_fsa_H

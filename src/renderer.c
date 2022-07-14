@@ -176,8 +176,8 @@ void renderer_init() {
 	viewproj_uniform = glGetUniformLocation(program, "viewProj");
 	model_uniform = glGetUniformLocation(program, "model");
 
-	glUniform4fv(viewproj_uniform, 1, (float*)GLM_MAT4_IDENTITY);
-	glUniform4fv(model_uniform, 1, (float*)GLM_MAT4_IDENTITY);
+	glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float*)GLM_MAT4_IDENTITY);
+	glProgramUniformMatrix4fv(program, model_uniform, 1, GL_FALSE, (float*)GLM_MAT4_IDENTITY);
 
     glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);

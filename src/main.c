@@ -25,47 +25,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, 1);
 }
 
-void allocator_test() {
-	Index data[3];
-
-	printf("===ALLOCATOR TEST===\n");
-
-	printf("Initial state:\n");
-	print_memory_cells(0, 5);
-
-	data[0] = mem_pool_alloc();
-	mem[data[0]].leaf.data[0] = 123;
-	printf("Alloc:\n");
-	print_memory_cells(0, 5);
-
-	data[1] = mem_pool_alloc();
-	mem[data[1]].leaf.data[0] = 727;
-	printf("Alloc:\n");
-	print_memory_cells(0, 5);
-
-	data[2] = mem_pool_alloc();
-	mem[data[2]].leaf.data[0] = 1337;
-	printf("Alloc:\n");
-	print_memory_cells(0, 5);
-
-	mem_pool_free(data[0]);
-	printf("Free:\n");
-	print_memory_cells(0, 5);
-
-	mem_pool_free(data[2]);
-	printf("Free:\n");
-	print_memory_cells(0, 5);
-
-	data[2] = mem_pool_alloc();
-	mem[data[2]].leaf.data[0] = 0xFF;
-	printf("Alloc:\n");
-	print_memory_cells(0, 5);
-}
 
 int main() {
-	Camera camera;
 	FPSCameraController camera_controller;
+	FixedSizeAllocator allocator;
 	GLFWwindow* window;
+	Camera camera;
 
 	glfwInit();
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -80,10 +45,10 @@ int main() {
 
 	loadGL();
 	renderer_init();
-	mem_pool_init();
+	fsa_init(&allocator);
 	
 	#if defined(DEBUG)
-		allocator_test();
+		fsa_test(&allocator);
 	#endif
 
 	camera_init(&camera);
@@ -122,10 +87,10 @@ int main() {
 
 		for (int i = 0; i < 64; i++) {
 			mat4 transform = GLM_MAT4_IDENTITY_INIT;
-			float rot = fmod(global.frametime_info.time - (i / 64.0), GLM_PI_2 * 2.0 * 3.0);
-			float rotx = clamp(rot, GLM_PI_2 * 1.0, GLM_PI_2 * 0.0) + clamp(rot, GLM_PI_2 * 4.0, GLM_PI_2 * 3.0);
-			float roty = clamp(rot, GLM_PI_2 * 2.0, GLM_PI_2 * 1.0) + clamp(rot, GLM_PI_2 * 5.0, GLM_PI_2 * 4.0);
-			float rotz = clamp(rot, GLM_PI_2 * 3.0, GLM_PI_2 * 2.0) + clamp(rot, GLM_PI_2 * 6.0, GLM_PI_2 * 5.0);
+			float rot = fmod(global.frametime_info.time - (i / 64.0), GLM_PI * 2.0 * 3.0);
+			float rotx = clamp(rot, GLM_PI * 1.0, GLM_PI * 0.0) + clamp(rot, GLM_PI * 4.0, GLM_PI * 3.0);
+			float roty = clamp(rot, GLM_PI * 2.0, GLM_PI * 1.0) + clamp(rot, GLM_PI * 5.0, GLM_PI * 4.0);
+			float rotz = clamp(rot, GLM_PI * 3.0, GLM_PI * 2.0) + clamp(rot, GLM_PI * 6.0, GLM_PI * 5.0);
 
 			glm_rotate(transform, rotx, GLM_XUP);
 			glm_rotate(transform, roty, GLM_YUP);
@@ -141,6 +106,7 @@ int main() {
 		glfwSwapBuffers(window);
 	}
 
+	fsa_destroy(&allocator);
 	glfwDestroyWindow(window);
 	renderer_destroy();
 	return 0;
