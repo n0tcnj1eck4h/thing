@@ -7,6 +7,9 @@ extern unsigned int resources_vert_glsl_len;
 extern GLchar resources_frag_glsl[];
 extern unsigned int resources_frag_glsl_len;
 
+extern GLchar resources_comp_glsl[];
+extern unsigned int resources_comp_glsl_len;
+
 GLuint VBO, IBO, IBO2, VAO, VAO2;
 GLuint viewproj_uniform, model_uniform;
 GLuint program;

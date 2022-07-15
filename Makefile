@@ -1,5 +1,5 @@
 SOURCES = $(patsubst src/%, %, $(wildcard src/*.c))
-RESOURCES = frag.glsl vert.glsl
+RESOURCES = frag.glsl vert.glsl comp.glsl
 LIBS = glfw3 cglm
 
 BUILD_DIR=build

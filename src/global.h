@@ -12,7 +12,6 @@ typedef struct Global {
         f32 time_last;
     } frametime_info;
     u8 keystate[GLFW_KEY_LAST];
-    u8 should_exit;
 } Global;
 
 extern Global global;
