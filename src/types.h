@@ -27,8 +27,8 @@ typedef union MemoryBlock {
     u16 children[8];
     u128 data;
     struct {
-        union MemoryBlock* next;
-        union MemoryBlock* unused;
+        MemoryBlock* next;
+        MemoryBlock* unused;
     };
     struct {
         u8 r, g, b;
