@@ -13,13 +13,13 @@
 #include "string.h"
 #include "math.h"
 
-typedef struct {
+/*typedef struct {
 	Index head;
 	u64 depth;
 } Octree;
+*/
 
-FixedSizeAllocator allocator;
-
+/*
 void octree_draw(Index node_index, mat4 transform) {
 	Block* block = &allocator.data[node_index];
 
@@ -57,22 +57,23 @@ void octree_kill_children(Index parent) {
 		}
 	}
 }
+*/
 
-float clamp(float x, float upper, float lower)
-{
+float clamp(float x, float upper, float lower) {
     return fmin(upper, fmax(x, lower));
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     global.keystate[key] = action;
 }
 
 int main() {
 	FPSCameraController camera_controller;
+	FixedSizeAllocator allocator;
 	GLFWwindow* window;
 	Camera camera;
-	Octree octree;
+
+	//Octree octree;
 
 	glfwInit();
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -88,6 +89,19 @@ int main() {
 	loadGL();
 	renderer_init();
 	fsa_init(&allocator);
+
+	#if defined(DEBUG)
+		fsa_test(&allocator);
+		fsa_destroy(&allocator);
+		fsa_init(&allocator);
+	#endif // DEBUG
+
+	// Reserve the first VOXEL_COUNT memory blocks for voxel info
+	for (u32 i = 0; i < VOXEL_COUNT; i++) {
+		fsa_alloc(&allocator);
+	}
+
+	fsa_print_cells(&allocator, VOXEL_COUNT - 4, 8);
 	
 	camera_init(&camera);
 	glm_vec3_copy((vec3){6.f, 2.f, 2.f}, camera.pos);
@@ -102,12 +116,12 @@ int main() {
 	camera_controller.speed = 1.0;
 	camera_controller.sens = 1.0;
 
-	octree.head = fsa_alloc(&allocator);
+	/*octree.head = fsa_alloc(&allocator);
 	allocator.data[octree.head].leaf.data[0] = 0;
-	allocator.data[octree.head].leaf.data[1] = 0;
+	allocator.data[octree.head].leaf.data[1] = 0;*/
 
-	octree_add_child(octree.head, 6);
-	octree_add_child(octree.head, 3);
+	/*octree_add_child(octree.head, 6);
+	octree_add_child(octree.head, 3);*/
 
 	while(!glfwWindowShouldClose(window)){
 		global.frametime_info.time_last = global.frametime_info.time;
@@ -125,7 +139,7 @@ int main() {
 		if(global.keystate[GLFW_KEY_ESCAPE] == GLFW_PRESS) 
 			glfwSetWindowShouldClose(window, 1);
 
-		if(global.keystate[GLFW_KEY_R] == GLFW_PRESS) 
+		/*if(global.keystate[GLFW_KEY_R] == GLFW_PRESS) 
 			octree_kill_children(octree.head);
 
 		if(global.keystate[GLFW_KEY_E] == GLFW_PRESS)
@@ -146,12 +160,12 @@ int main() {
 		if(global.keystate[GLFW_KEY_7] == GLFW_PRESS)
 			octree_add_child(octree.head, 6);
 		if(global.keystate[GLFW_KEY_8] == GLFW_PRESS)
-			octree_add_child(octree.head, 7);
+			octree_add_child(octree.head, 7);*/
 
 
 			
-		//rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
-		octree_draw(octree.head, GLM_MAT4_IDENTITY);
+		rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
+		//octree_draw(octree.head, GLM_MAT4_IDENTITY);
 
 		glfwSwapBuffers(window);
 	}

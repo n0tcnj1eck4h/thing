@@ -11,13 +11,13 @@ void fsa_init(FixedSizeAllocator* allocator) {
     allocator -> allocated_memory_exp = 16; // 64kb
     allocator -> free_blocks = 1 << allocator -> allocated_memory_exp;
     allocator -> initilized_blocks = 0;
-    allocator -> head = 0;
     allocator -> data = malloc(allocator -> free_blocks);
+    allocator -> head = allocator -> data;
     assert(allocator -> data);
 }
 
-Index fsa_alloc(FixedSizeAllocator* allocator) {
-    Index ret;
+MemoryBlock* fsa_alloc(FixedSizeAllocator* allocator) {
+    MemoryBlock* ret;
 
     if(!allocator -> free_blocks) {
         #if defined(DEBUG)
@@ -30,21 +30,20 @@ Index fsa_alloc(FixedSizeAllocator* allocator) {
     }
 
     if (allocator -> initilized_blocks < (1 << allocator -> allocated_memory_exp)) {
-        Index i = allocator -> initilized_blocks;
-        allocator -> data[i].index = allocator -> initilized_blocks + 1;
+        allocator -> data[allocator -> initilized_blocks].next = &allocator -> data[allocator -> initilized_blocks + 1];
         allocator -> initilized_blocks++;
     }
 
     ret = allocator -> head;
     allocator -> free_blocks--;
-    allocator -> head = allocator -> data[allocator -> head].index;
+    allocator -> head = allocator -> head -> next;
 
     return ret;
 }
 
-void fsa_free(FixedSizeAllocator* allocator, Index idx) {
-    allocator -> data[idx].index = allocator -> head;
-    allocator -> head = idx;
+void fsa_free(FixedSizeAllocator* allocator, MemoryBlock* ptr) {
+    ptr -> next = allocator -> head;
+    allocator -> head = ptr;
     allocator -> free_blocks++;
 }
 
@@ -53,10 +52,11 @@ void fsa_destroy(FixedSizeAllocator* allocator)  {
     memset(allocator, 0, sizeof(*allocator));
 }
 
-void fsa_print_cell(FixedSizeAllocator* allocator, Index i) {
+void fsa_print_cell(FixedSizeAllocator* allocator, u64 i) {
     char* color = YEL;
     char* purpose = "Data";
-    Index head = allocator -> head;
+    MemoryBlock* head = allocator -> head;
+    MemoryBlock* block = &allocator -> data[i];
 
     if(i >= 1 << allocator -> allocated_memory_exp) {
         printf("Unallocated\n");
@@ -67,7 +67,7 @@ void fsa_print_cell(FixedSizeAllocator* allocator, Index i) {
         color = MAG;
         purpose = "End of memory";
     }
-    else if(allocator -> head == i){
+    else if(allocator -> head == block){
         color = GRN;
         purpose = "Head";
     }
@@ -75,43 +75,43 @@ void fsa_print_cell(FixedSizeAllocator* allocator, Index i) {
         purpose = "Uninitilized";
         color = reset;
     }
-    else while(head != allocator -> initilized_blocks) {
-        if(head == i) {
+    else while(head != &allocator -> data[allocator -> initilized_blocks]) {
+        if(head == &allocator -> data[i]) {
             color = GRN;
             purpose = "Bookkeeping";
             break;
         }
 
-        head = allocator -> data[head].index;
+        head = head -> next;
     }
 
 
-    printf("%sNode[%d]: {%d, %d, %d, %d, %d, %d, %d, %d} \t Index[%d]: %d %s\n" reset,
+    printf("%sNode[%ld]: {%d, %d, %d, %d, %d, %d, %d, %d} \t Index[%ld]: %p %s\n" reset,
         color,
         i,
-        allocator -> data[i].node.children[0],
-        allocator -> data[i].node.children[1],
-        allocator -> data[i].node.children[2],
-        allocator -> data[i].node.children[3],
-        allocator -> data[i].node.children[4],
-        allocator -> data[i].node.children[5],
-        allocator -> data[i].node.children[6],
-        allocator -> data[i].node.children[7],
+        allocator -> data[i].children[0],
+        allocator -> data[i].children[1],
+        allocator -> data[i].children[2],
+        allocator -> data[i].children[3],
+        allocator -> data[i].children[4],
+        allocator -> data[i].children[5],
+        allocator -> data[i].children[6],
+        allocator -> data[i].children[7],
         i, 
-        allocator -> data[i].index,
+        allocator -> data[i].next,
         purpose
     );
 }
 
 void fsa_print_state(FixedSizeAllocator* allocator) {
-	printf("free: %ld \t init: %ld \t head: %d\n",
+	printf("free: %ld \t init: %ld \t head: %p\n",
         allocator -> free_blocks,
         allocator -> initilized_blocks,
         allocator -> head
     );
 }
 
-void fsa_print_cells(FixedSizeAllocator* allocator, Index start, Index count) {
+void fsa_print_cells(FixedSizeAllocator* allocator, u64 start, u64 count) {
 	fsa_print_state(allocator);
 	for (int i = start; i < start + count; i++)
 		fsa_print_cell(allocator, i);
@@ -119,7 +119,7 @@ void fsa_print_cells(FixedSizeAllocator* allocator, Index start, Index count) {
 }
 
 void fsa_test(FixedSizeAllocator* allocator) {
-	Index indices[3];
+	MemoryBlock* indices[3];
 
 	printf("===ALLOCATOR TEST===\n");
 
@@ -127,17 +127,17 @@ void fsa_test(FixedSizeAllocator* allocator) {
 	fsa_print_cells(allocator, 0, 5);
 
 	indices[0] = fsa_alloc(allocator);
-	allocator -> data[indices[0]].leaf.data[0] = 123;
+	indices[0] -> data = 123;
 	printf("Alloc:\n");
 	fsa_print_cells(allocator, 0, 5);
 
 	indices[1] = fsa_alloc(allocator);
-	allocator -> data[indices[1]].leaf.data[0] = 727;
+	indices[1] -> data = 727;
 	printf("Alloc:\n");
 	fsa_print_cells(allocator, 0, 5);
 
 	indices[2] = fsa_alloc(allocator);
-	allocator -> data[indices[2]].leaf.data[0] = 1337;
+	indices[2] -> data = 1337;
 	printf("Alloc:\n");
 	fsa_print_cells(allocator, 0, 5);
 
@@ -150,7 +150,7 @@ void fsa_test(FixedSizeAllocator* allocator) {
 	fsa_print_cells(allocator, 0, 5);
 
 	indices[2] = fsa_alloc(allocator);
-	allocator -> data[indices[2]].leaf.data[0] = 0xFF;
+	indices[2] -> data = 0xFF;
 	printf("Alloc:\n");
 	fsa_print_cells(allocator, 0, 5);
 }
