@@ -7,11 +7,10 @@ SRC_DIR=src
 OBJ_DIR=obj
 RSC_DIR=resources
 
-LDFLAGS := `pkg-config --libs   $(LIBS)` -lm
-CFLAGS  := `pkg-config --cflags $(LIBS)` -Wall -g -Isrc -O0 -DDEBUG
+LDLIBS := $(shell pkg-config --libs   $(LIBS))
+CFLAGS := $(shell pkg-config --cflags $(LIBS)) -Wall -g -Isrc -DDEBUG
 
-OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES))
-OBJS += $(patsubst %, $(OBJ_DIR)/$(RSC_DIR)/%.o, $(RESOURCES))
+OBJS = $(patsubst %.c, $(OBJ_DIR)/%.o, $(SOURCES)) $(patsubst %, $(OBJ_DIR)/$(RSC_DIR)/%.o, $(RESOURCES))
 
 .PRECIOUS: $(OBJ_DIR)/$(RSC_DIR)/%.c
 .PHONY: all build clean run
@@ -19,8 +18,8 @@ OBJS += $(patsubst %, $(OBJ_DIR)/$(RSC_DIR)/%.o, $(RESOURCES))
 all: build
 
 build: $(OBJS)
-	$(CC) $(CFLAGS) $? $(LDFLAGS) -o $(BUILD_DIR)/out
-	chmod +x $(BUILD_DIR)/out
+	$(CC) $(LDFLAGS) $? $(LDLIBS) -o  $(BUILD_DIR)/out
+	chmod +x  $(BUILD_DIR)/out
 
 clean:
 	$(RM) $(BUILD_DIR)/*
@@ -32,10 +31,10 @@ run: build
 	$(BUILD_DIR)/out
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/$(RSC_DIR)/%.o: $(OBJ_DIR)/$(RSC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/$(RSC_DIR)/%.c: $(RSC_DIR)/%
 	xxd -i $< $@
