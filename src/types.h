@@ -18,21 +18,19 @@ typedef __int128_t i128;
 typedef float  f32;
 typedef double f64;
 
-typedef enum VOXEL_IDS {
+typedef enum VOXEL_ID {
     VOXEL_FIRST = 0,
+    VOXEL_AIR = 0,
     VOXEL_COUNT = 1024,
-} VOXEL_IDS;
+} VOXEL_ID;
 
 typedef union MemoryBlock {
-    u16 children[8];
     u128 data;
+    u16 children[8];
     struct {
         union MemoryBlock* next;
         union MemoryBlock* unused;
     };
-    struct {
-        u8 r, g, b;
-    } voxel_info;
 } MemoryBlock;
 
 #endif // TYPES_H

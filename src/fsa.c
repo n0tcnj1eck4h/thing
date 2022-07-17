@@ -86,9 +86,10 @@ void fsa_print_cell(FixedSizeAllocator* allocator, u64 i) {
     }
 
 
-    printf("%sNode[%ld]: {%d, %d, %d, %d, %d, %d, %d, %d} \t Index[%ld]: %p %s\n" reset,
+    printf("%sBlock[%ld] @ %p: {%d, %d, %d, %d, %d, %d, %d, %d} Next: %p  %s\n" reset,
         color,
         i,
+        block,
         allocator -> data[i].children[0],
         allocator -> data[i].children[1],
         allocator -> data[i].children[2],
@@ -97,7 +98,6 @@ void fsa_print_cell(FixedSizeAllocator* allocator, u64 i) {
         allocator -> data[i].children[5],
         allocator -> data[i].children[6],
         allocator -> data[i].children[7],
-        i, 
         allocator -> data[i].next,
         purpose
     );

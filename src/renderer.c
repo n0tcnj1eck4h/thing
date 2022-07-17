@@ -11,7 +11,7 @@ extern GLchar resources_comp_glsl[];
 extern unsigned int resources_comp_glsl_len;
 
 GLuint VBO, IBO, IBO2, VAO, VAO2;
-GLuint viewproj_uniform, model_uniform;
+GLuint viewproj_uniform, model_uniform, color_uniform;
 GLuint program;
 
 Camera* active_camera = NULL;
@@ -132,6 +132,10 @@ static GLuint make_program(const GLchar* vert_source, unsigned int vert_source_l
 	return program;
 }
 
+void renderer_set_draw_color(vec3 color) {
+	glProgramUniform3fv(program, color_uniform, 1, color);
+}
+
 void renderer_init() {
 
     #if defined(DEBUG)
@@ -145,7 +149,7 @@ void renderer_init() {
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW); 
 
-	glLineWidth(3.0f);
+	glLineWidth(1.0f);
 
     program = make_program(resources_vert_glsl, resources_vert_glsl_len, resources_frag_glsl, resources_frag_glsl_len);
 	glUseProgram(program);
@@ -178,10 +182,12 @@ void renderer_init() {
 
 	viewproj_uniform = glGetUniformLocation(program, "viewProj");
 	model_uniform = glGetUniformLocation(program, "model");
+	color_uniform = glGetUniformLocation(program, "color");
 
 	glProgramUniformMatrix4fv(program, viewproj_uniform, 1, GL_FALSE, (float*)GLM_MAT4_IDENTITY);
 	glProgramUniformMatrix4fv(program, model_uniform, 1, GL_FALSE, (float*)GLM_MAT4_IDENTITY);
-
+	renderer_set_draw_color(GLM_VEC3_ZERO);
+	
     glViewport(0, 0, 1080, 720);
 	glClearColor(0.5, 1.0, 0.75, 1.0);
 }

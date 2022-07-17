@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "GLFW/glfw3.h"
+#include "cglm/vec3.h"
 
 typedef struct Global {
     struct {
@@ -12,6 +13,7 @@ typedef struct Global {
         f32 time_last;
     } frametime_info;
     u8 keystate[GLFW_KEY_LAST];
+    vec3 palette[VOXEL_COUNT];
 } Global;
 
 extern Global global;

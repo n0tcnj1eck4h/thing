@@ -13,5 +13,6 @@ void rederer_draw_cube(mat4 transform);
 void renderer_set_camera(Camera* camera);
 void renderer_destroy();
 void rederer_draw_cube_lines(mat4 transform);
+void renderer_set_draw_color(vec3 color);
 
 #endif // RENDERER_H
