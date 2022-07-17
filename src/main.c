@@ -64,7 +64,17 @@ int main() {
 
 	fsa_print_cells(&allocator, 0, 5);
 
-	octree_set_block(&octree, octree.head, 0234, 4, 515);
+	octree_set_block(&octree, octree.head, 0, 0, 1000);
+	octree_set_block(&octree, octree.head, 0, 1, 300);
+	octree_set_block(&octree, octree.head, 010, 1, 0);
+	octree_set_block(&octree, octree.head, 0224, 4, 700);
+	octree_set_block(&octree, octree.head, 0223, 6, 20);
+	octree_set_block(&octree, octree.head, 0223, 6, 0);
+
+	fsa_print_cells(&allocator, 0, 5);
+
+	octree_set_block(&octree, octree.head, 0, 1, 1000);
+	octree_set_block(&octree, octree.head, 010, 1, 1000);
 
 	fsa_print_cells(&allocator, 0, 5);
 
@@ -80,13 +90,6 @@ int main() {
 	camera_controller.camera = &camera;
 	camera_controller.speed = 5.0;
 	camera_controller.sens = 3.0;
-
-	/*octree.head = fsa_alloc(&allocator);
-	allocator.data[octree.head].leaf.data[0] = 0;
-	allocator.data[octree.head].leaf.data[1] = 0;*/
-
-	/*octree_add_child(octree.head, 6);
-	octree_add_child(octree.head, 3);*/
 
 	while(!glfwWindowShouldClose(window)){
 		global.frametime_info.time_last = global.frametime_info.time;

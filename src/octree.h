@@ -13,6 +13,6 @@ typedef struct Octree {
 
 void octree_init(Octree* octree, FixedSizeAllocator* allocator);
 void octree_draw(Octree* octree, MemoryBlock* head, mat4 transform);
-void octree_set_block(Octree* octree, MemoryBlock* origin, u64 path, u8 depth, VOXEL_ID id);
+bool octree_set_block(Octree* octree, MemoryBlock* origin, u64 path, u8 depth, VOXEL_ID id);
 
 #endif // OCTREE_H

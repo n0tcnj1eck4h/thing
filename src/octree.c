@@ -43,12 +43,29 @@ void octree_draw(Octree* octree, MemoryBlock* head, mat4 transform) {
 	}
 }
 
-void octree_set_block(Octree* octree, MemoryBlock* origin, u64 path, u8 depth, VOXEL_ID id) {
+bool octree_try_collapse(Octree* octree, MemoryBlock* grandparent, u8 parent_index) {
+    MemoryBlock* parent = idx_to_ptr(octree, grandparent -> children[parent_index]);
+    u16 id = parent -> children[0];
+    u8 eq = 1;
+
+    for (size_t i = 0; i < 7; i++)
+        eq &= parent -> children[i] == parent -> children[i + 1];
+    
+    if(eq) {
+        fsa_free(octree -> allocator, parent);
+        grandparent -> children[parent_index] = id;
+    }
+
+    return eq;
+}
+
+bool octree_set_block(Octree* octree, MemoryBlock* origin, u64 path, u8 depth, VOXEL_ID id) {
     u8 child_index = path % 8;
     u16 child_data = origin -> children[child_index];
 
-    if(child_data == id) return;
+    if(child_data == id) return false;
 
+    path /= 8;
     if(depth > 0) {
         if(child_data < octree -> reserved_indices) {
             MemoryBlock* new_child = fsa_alloc(octree -> allocator);
@@ -58,16 +75,22 @@ void octree_set_block(Octree* octree, MemoryBlock* origin, u64 path, u8 depth, V
             }
 
             origin -> children[child_index] = ptr_to_idx(octree, new_child);
-
-            octree_set_block(octree, new_child, path / 8, depth - 1, id);
+                
+            if(octree_set_block(octree, new_child, path, depth - 1, id)) { // has collapsed
+                return octree_try_collapse(octree, origin, child_index);
+            }
         }
         else {
             MemoryBlock* new_origin = idx_to_ptr(octree, child_data);
-            octree_set_block(octree, new_origin, path / 8, depth - 1, id);
+            if(octree_set_block(octree, new_origin, path, depth - 1, id)) {
+                return octree_try_collapse(octree, origin, child_index);
+            }
         }
+        return false;
     }
     else {
         origin -> children[child_index] = id;
+        return true; // try collapse
     }
 }
 
