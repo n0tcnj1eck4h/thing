@@ -62,34 +62,32 @@ int main() {
 	octree_init(&octree, &allocator);
 	octree.reserved_indices = VOXEL_COUNT;
 
-	fsa_print_cells(&allocator, 0, 5);
+	octree_set_block(&octree, octree.head, 0b000, 0, 1000);
+	octree_set_block(&octree, octree.head, 0b001, 0, 1000);
+	octree_set_block(&octree, octree.head, 0b100, 0, 1000);
+	octree_set_block(&octree, octree.head, 0b101, 0, 1000);
 
-	octree_set_block(&octree, octree.head, 0, 0, 1000);
-	octree_set_block(&octree, octree.head, 0, 1, 300);
-	octree_set_block(&octree, octree.head, 010, 1, 0);
-	octree_set_block(&octree, octree.head, 0224, 4, 700);
-	octree_set_block(&octree, octree.head, 0223, 6, 20);
-	octree_set_block(&octree, octree.head, 0223, 6, 0);
+	octree_set_block(&octree, octree.head, 0b111000, 1, 0);
+	octree_set_block(&octree, octree.head, 0b110001, 1, 0);
+	octree_set_block(&octree, octree.head, 0b011100, 1, 0);
+	octree_set_block(&octree, octree.head, 0b010101, 1, 0);
 
-	fsa_print_cells(&allocator, 0, 5);
-
-	octree_set_block(&octree, octree.head, 0, 1, 1000);
-	octree_set_block(&octree, octree.head, 010, 1, 1000);
-
-	fsa_print_cells(&allocator, 0, 5);
+	octree_set_block(&octree, octree.head, 0b101000, 1, 255);
+	octree_set_block(&octree, octree.head, 0b100001, 1, 255);
+	octree_set_block(&octree, octree.head, 0b001100, 1, 255);
+	octree_set_block(&octree, octree.head, 0b000101, 1, 255);
 
 	camera_init(&camera);
-	glm_vec3_copy((vec3){6.f, 2.f, 2.f}, camera.pos);
-	glm_vec3_copy((vec3){-6.f, -2.f, -2.f}, camera.dir);
-	glm_vec3_normalize(camera.dir);
+	glm_vec3_copy((vec3){0.5f, 0.5f, 0.5f}, camera.pos);
+	glm_vec3_copy(GLM_FORWARD, camera.dir);
 	
 	renderer_set_camera(&camera);
 	camera_update_proj(&camera);
 	camera_update_viewproj(&camera);
 
 	camera_controller.camera = &camera;
-	camera_controller.speed = 5.0;
-	camera_controller.sens = 3.0;
+	camera_controller.speed = 0.5;
+	camera_controller.sens = 4.0;
 
 	while(!glfwWindowShouldClose(window)){
 		global.frametime_info.time_last = global.frametime_info.time;
@@ -108,6 +106,8 @@ int main() {
 			glfwSetWindowShouldClose(window, 1);
 
 		//rederer_draw_cube_lines(GLM_MAT4_IDENTITY);
+		
+		renderer_set_draw_color(GLM_VEC3_ZERO);
 		octree_draw(&octree, octree.head, GLM_MAT4_IDENTITY);
 
 		glfwSwapBuffers(window);

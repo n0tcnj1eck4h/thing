@@ -14,16 +14,14 @@ void fps_camera_controller_update(FPSCameraController* controller) {
     vec3 movement = GLM_VEC3_ZERO_INIT;
     vec3 right;
 
-    if(key_pressed(GLFW_KEY_LEFT)) {
-        glm_vec3_rotate(controller -> camera -> dir, -delta, GLM_YUP);
-    }    
-
-    if(key_pressed(GLFW_KEY_RIGHT)) {
+    if(key_pressed(GLFW_KEY_LEFT)) 
         glm_vec3_rotate(controller -> camera -> dir, delta, GLM_YUP);
-    }   
+
+    if(key_pressed(GLFW_KEY_RIGHT)) 
+        glm_vec3_rotate(controller -> camera -> dir, -delta, GLM_YUP);
 
 
-    glm_vec3_cross(GLM_YUP, controller -> camera -> dir, right);
+    glm_vec3_cross(controller -> camera -> dir, GLM_YUP, right);
 
     if(key_pressed(GLFW_KEY_DOWN)) {
         glm_vec3_rotate(controller -> camera -> dir, -delta, right);
@@ -32,7 +30,6 @@ void fps_camera_controller_update(FPSCameraController* controller) {
     if(key_pressed(GLFW_KEY_UP)) {
         glm_vec3_rotate(controller -> camera -> dir, delta, right);
     }  
-
 
     if(key_pressed(GLFW_KEY_LEFT_SHIFT))
         distance *= 2.0;
@@ -54,11 +51,11 @@ void fps_camera_controller_update(FPSCameraController* controller) {
     }
 
     if(key_pressed(GLFW_KEY_SPACE)) {
-        movement[1] -= 1.0;
+        movement[1] += 1.0;
 
     }
     if(key_pressed(GLFW_KEY_LEFT_CONTROL)) {
-        movement[1] += 1.0;
+        movement[1] -= 1.0;
     }
 
     glm_normalize(movement);

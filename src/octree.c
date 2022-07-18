@@ -23,7 +23,7 @@ void octree_draw(Octree* octree, MemoryBlock* head, mat4 transform) {
 	for(u8 i = 0; i < 8; i++) {
         u16 index = head -> children[i];
 
-        if(index == VOXEL_AIR) // Air
+        if(index == VOXEL_AIR)
             continue;
 
         mat4 transform_next;

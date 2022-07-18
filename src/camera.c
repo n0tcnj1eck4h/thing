@@ -14,7 +14,7 @@ void camera_init(Camera* camera) {
 }
 
 void camera_update_viewproj(Camera* camera) {
-    glm_look(camera -> pos, camera -> dir, GLM_YUP, camera -> view);
+    glm_look(camera -> pos, camera -> dir, (vec3){0.0f, -1.0f, 0.0f}, camera -> view);
     glm_mat4_mul(camera -> proj, camera -> view, camera -> viewproj);
 }
 
